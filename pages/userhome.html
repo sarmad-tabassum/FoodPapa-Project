@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      type="x-icon"
+      href="../../Main/Images/cheif-logo.jpg"
+    />
+    <title>FoodPapa | Home</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <style>
+      body {
+        background-color: #f7f7f7;
+      }
+      .text-orange {
+        color: #fd7e14;
+      }
+      .btn-orange {
+        background-color: #fd7e14;
+        color: white;
+      }
+      .btn-orange:hover {
+        background-color: #e96b00;
+      }
+      .dish-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 15px;
+      }
+      .cart-fixed {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1050;
+      }
+      .dish-cart img {
+        width: 50px;
+      }
+      .cart-num {
+        background-color: red;
+        color: white;
+        border-radius: 50%;
+        padding: 2px 8px;
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        font-size: 12px;
+      }
+
+      .cart-fixed {
+        position: fixed;
+        top: 100px;
+        right: 40px;
+        z-index: 1000;
+      }
+
+      .dish-cart {
+        position: relative;
+        background-color: #fff;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 12px;
+        transition: transform 0.3s ease;
+      }
+
+      .dish-cart:hover {
+        transform: scale(1.05);
+      }
+
+      .dish-cart img {
+        height: 32px;
+        width: 32px;
+      }
+
+      .cart-num {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background-color: #fd7e14;
+        color: #fff;
+        font-size: 12px;
+        font-weight: bold;
+        padding: 2px 6px;
+        border-radius: 50%;
+      }
+
+      /* Card hover effect */
+      .card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease-in-out;
+      }
+
+      /* Navbar link hover effect */
+      .nav-link:hover {
+        color: #fd7e14 !important;
+        font-weight: bold;
+      }
+
+      .like-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #6c757d; /* default grey */
+      }
+
+      .like-btn .fa-heart {
+        font-size: 18px;
+      }
+
+      .like-btn.liked {
+        color: #e02424; /* red when liked */
+        font-weight: 600;
+      }
+
+      .like-count {
+        font-size: 14px;
+      }
+
+      .fav-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #6c757d;
+      }
+
+      .fav-btn .fa-bookmark {
+        font-size: 18px;
+      }
+
+      .fav-btn.favorited {
+        color: #fd7e14;
+        font-weight: 600;
+      }
+
+      .fav-text {
+        font-size: 14px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-light bg-white shadow-sm p-3 mb-4 sticky-top">
+      <div
+        class="container-fluid d-flex justify-content-between align-items-center"
+      >
+        <div class="d-flex align-items-center">
+          <img
+            src="../Images/cheif-logo.jpg"
+            alt="Logo"
+            width="40"
+            class="me-2"
+          />
+          <span class="navbar-brand mb-0 h1 text-orange">FoodPapa</span>
+        </div>
+        <ul class="nav">
+          <li class="nav-item">
+            <a class="nav-link text-orange fw-bold" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark" href="./userdishes.html"
+              >Dashboard</a
+            >
+          </li>
+        </ul>
+        <button onclick="logout()" class="btn btn-orange">Logout</button>
+      </div>
+    </nav>
+
+    <div class="cart-fixed">
+      <div
+        class="dish-cart"
+        data-bs-toggle="modal"
+        data-bs-target="#cartModal"
+        style="cursor: pointer"
+      >
+        <img
+          src="https://t3.ftcdn.net/jpg/05/60/17/66/360_F_560176615_cUua21qgzxDiLiiyiVGYjUnLSGnVLIi6.jpg"
+        />
+        <div class="cart-num">0</div>
+      </div>
+    </div>
+
+    <main class="container">
+      <h2 class="mb-4">
+        Our <span style="color: #fd7e14; font-style: italic"> Dishes </span>
+      </h2>
+      <div id="dishesShowList" class="row"></div>
+    </main>
+
+    <div
+      class="modal fade"
+      id="cartModal"
+      tabindex="-1"
+      aria-labelledby="cartModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cartModalLabel">Your Cart</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="cartItemsContainer"></div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-success" id="placeOrderBtn">
+              Place Order
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        onValue,
+        push,
+      } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBxU04d9_k9VmPtFDlSpEKH94iUWkrOWKs",
+        authDomain: "foodpapa-24729.firebaseapp.com",
+        projectId: "foodpapa-24729",
+        storageBucket: "foodpapa-24729.appspot.com",
+        messagingSenderId: "573671343924",
+        appId: "1:573671343924:web:71cfccd5064e09bbe50761",
+        measurementId: "G-8BMFCXJ60K",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+      const auth = getAuth(app);
+
+      const dishesContainer = document.getElementById("dishesShowList");
+      const cartNum = document.querySelector(".cart-num");
+      const cartItemsContainer = document.getElementById("cartItemsContainer");
+      const placeOrderBtn = document.getElementById("placeOrderBtn");
+
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      let likes = JSON.parse(localStorage.getItem("likes")) || {};
+      let favorites = JSON.parse(localStorage.getItem("favorites")) || {};
+
+      let currentUser = null;
+
+      Swal.fire({
+        title: "Checking login...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Please login to continue!",
+            confirmButtonColor: "#fd7e14",
+          }).then(() => {
+            window.location.href = "./userlogin.html";
+          });
+        } else {
+          currentUser = user;
+          Swal.close();
+          loadDishes();
+          updateCartCount();
+        }
+      });
+
+      placeOrderBtn.addEventListener("click", async () => {
+        if (cart.length === 0) return;
+
+        if (!currentUser) {
+          Swal.fire("Error", "User not logged in!", "error");
+          return;
+        }
+
+        const orderData = {
+          username: currentUser.displayName || "Anonymous",
+          email: currentUser.email || "No Email",
+          items: cart.map((item) => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity || 1,
+          })),
+          timestamp: Date.now(),
+          status: "Pending",
+        };
+
+        try {
+          await push(ref(db, `orders/${currentUser.uid}`), orderData);
+
+          cart = [];
+          localStorage.removeItem("cart");
+          updateCartCount();
+          renderCartModal();
+
+          Swal.fire(
+            "Order Placed",
+            "Your order has been placed successfully!",
+            "success"
+          );
+        } catch (error) {
+          Swal.fire(
+            "Error",
+            "Failed to place order: " + error.message,
+            "error"
+          );
+        }
+      });
+
+      function loadDishes() {
+        onValue(ref(db, "dishes"), (snapshot) => {
+          dishesContainer.innerHTML = "";
+          const data = snapshot.val();
+          if (!data) {
+            dishesContainer.innerHTML =
+              '<p class="text-center">No dishes found.</p>';
+            return;
+          }
+
+          Object.entries(data).forEach(([id, dish]) => {
+            const initialLikeCount = dish.likes || 0;
+            if (!likes[id]) {
+              likes[id] = { liked: false, count: initialLikeCount };
+            } else {
+              if (
+                typeof dish.likes === "number" &&
+                dish.likes > likes[id].count
+              ) {
+                likes[id].count = dish.likes;
+              }
+            }
+
+            if (!favorites[id]) {
+              favorites[id] = { favorited: false, count: 0 };
+            }
+
+            const col = document.createElement("div");
+            col.className = "col-md-4 mb-4";
+            col.innerHTML = `
+          <div class="card shadow-sm h-100">
+            <img src="${
+              dish.image || dish.imageURL
+            }" class="card-img-top" style="height: 200px; object-fit: cover;" alt="${
+              dish.name
+            }">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <div class="text-center">
+                <h6 class="text-muted my-3">Category: <span class="fw-semibold text-orange">${
+                  dish.category || "Uncategorized"
+                }</span></h6>
+                <h5 class="card-title">${dish.name}</h5>
+                <p class="card-text fw-bold text-orange mb-2">Rs. ${
+                  dish.price
+                }</p>
+                <p class="card-text text-truncate" style="max-height:60px; overflow:auto;">${
+                  dish.description || ""
+                }</p>
+              </div>
+
+              <div class="d-flex gap-2 align-items-center mt-3">
+
+                <button class="btn btn-orange flex-grow-1" onclick='addToCart("${id}", ${JSON.stringify(
+              JSON.stringify(dish)
+            )})'>Add to Cart</button>
+
+                <!-- Like button -->
+                <button
+                  id="like-btn-${id}"
+                  class="like-btn ${likes[id].liked ? "liked" : ""}"
+                  onclick="toggleLike('${id}')"
+                  aria-label="Like ${dish.name}">
+                  <i class="${
+                    likes[id].liked ? "fa-solid" : "fa-regular"
+                  } fa-heart"></i>
+                  <span id="like-count-${id}" class="like-count">${
+              likes[id].count
+            }</span>
+                </button>
+
+                <!-- Favorite button -->
+                <button
+                  id="fav-btn-${id}"
+                  class="fav-btn ${favorites[id].favorited ? "favorited" : ""}"
+                  onclick="toggleFavorite('${id}')"
+                  aria-label="Favorite ${dish.name}">
+                  <i class="${
+                    favorites[id].favorited ? "fa-solid" : "fa-regular"
+                  } fa-bookmark"></i>
+                  <span id="fav-count-${id}" class="fav-text">${
+              favorites[id].count
+            }</span>
+                </button>
+
+              </div>
+            </div>
+          </div>
+        `;
+            dishesContainer.appendChild(col);
+          });
+
+          saveLikesToStorage();
+          saveFavoritesToStorage();
+        });
+      }
+
+      function saveLikesToStorage() {
+        localStorage.setItem("likes", JSON.stringify(likes));
+      }
+
+      function saveFavoritesToStorage() {
+        localStorage.setItem("favorites", JSON.stringify(favorites));
+      }
+
+      window.toggleLike = function (id) {
+        if (!likes[id]) {
+          likes[id] = { liked: false, count: 0 };
+        }
+
+        const entry = likes[id];
+        const btn = document.getElementById(`like-btn-${id}`);
+        const countSpan = document.getElementById(`like-count-${id}`);
+        const heartIcon = btn.querySelector("i.fa-heart");
+
+        if (entry.liked) {
+          entry.liked = false;
+          entry.count = Math.max(0, (entry.count || 0) - 1);
+          btn.classList.remove("liked");
+          heartIcon.classList.remove("fa-solid");
+          heartIcon.classList.add("fa-regular");
+        } else {
+          entry.liked = true;
+          entry.count = (entry.count || 0) + 1;
+          btn.classList.add("liked");
+          heartIcon.classList.remove("fa-regular");
+          heartIcon.classList.add("fa-solid");
+        }
+
+        if (countSpan) countSpan.textContent = entry.count;
+        saveLikesToStorage();
+      };
+
+      window.toggleFavorite = function (id) {
+        if (!favorites[id]) {
+          favorites[id] = { favorited: false, count: 0 };
+        }
+
+        const entry = favorites[id];
+        const btn = document.getElementById(`fav-btn-${id}`);
+        const countSpan = document.getElementById(`fav-count-${id}`);
+        const bookmarkIcon = btn.querySelector("i.fa-bookmark");
+
+        if (entry.favorited) {
+          entry.favorited = false;
+          entry.count = Math.max(0, (entry.count || 0) - 1);
+          btn.classList.remove("favorited");
+          bookmarkIcon.classList.remove("fa-solid");
+          bookmarkIcon.classList.add("fa-regular");
+        } else {
+          entry.favorited = true;
+          entry.count = (entry.count || 0) + 1;
+          btn.classList.add("favorited");
+          bookmarkIcon.classList.remove("fa-regular");
+          bookmarkIcon.classList.add("fa-solid");
+        }
+
+        if (countSpan) countSpan.textContent = entry.count;
+        saveFavoritesToStorage();
+      };
+
+      window.addToCart = (id, dishStr) => {
+        const dish = JSON.parse(dishStr);
+        cart.push({ id, ...dish });
+        localStorage.setItem("cart", JSON.stringify(cart));
+        Swal.fire({
+          icon: "success",
+          title: "Added to cart!",
+          text: `${dish.name} added.`,
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        updateCartCount();
+      };
+
+      window.removeFromCart = (index) => {
+        cart.splice(index, 1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartCount();
+        renderCartModal();
+      };
+
+      function updateCartCount() {
+        cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cartNum.textContent = cart.length;
+      }
+
+      function renderCartModal() {
+        cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cartItemsContainer.innerHTML = "";
+
+        if (cart.length === 0) {
+          cartItemsContainer.innerHTML =
+            '<p class="text-center">Your cart is empty.</p>';
+          placeOrderBtn.style.display = "none";
+          return;
+        }
+
+        placeOrderBtn.style.display = "inline-block";
+
+        cart.forEach((item, index) => {
+          const div = document.createElement("div");
+          div.className = "d-flex align-items-center mb-3 border-bottom pb-2";
+          div.innerHTML = `
+        <img src="${item.image || item.imageURL}" alt="${
+            item.name
+          }" style="width: 80px; height: 80px; object-fit: cover;" class="me-3 rounded">
+        <div class="flex-grow-1">
+          <h6 class="mb-1">${item.name}</h6>
+          <p class="mb-0 text-muted">Rs. ${item.price}</p>
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="removeFromCart(${index})">Remove</button>
+      `;
+          cartItemsContainer.appendChild(div);
+        });
+      }
+
+      document
+        .getElementById("cartModal")
+        .addEventListener("show.bs.modal", renderCartModal);
+
+      window.logout = async function () {
+        const result = await Swal.fire({
+          title: "Logout?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#fd7e14",
+          cancelButtonColor: "#6c757d",
+          confirmButtonText: "Yes, logout",
+        });
+
+        if (result.isConfirmed) {
+          try {
+            await signOut(auth);
+
+            await Swal.fire({
+              icon: "success",
+              title: "Logged Out!",
+              text: "You have been logged out successfully.",
+              confirmButtonColor: "#fd7e14",
+              timer: 1500,
+              timerProgressBar: true,
+              showConfirmButton: false,
+            });
+
+            setTimeout(() => {
+              window.location.href = "../index.html";
+            }, 1600);
+          } catch (error) {
+            Swal.fire("Error", "Logout failed: " + error.message, "error");
+          }
+        }
+      };
+
+      updateCartCount();
+      saveLikesToStorage();
+      saveFavoritesToStorage();
+    </script>
+  </body>
+</html>
