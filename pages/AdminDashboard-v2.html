@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FoodPapa | Dish Manager</title>
+  <link rel="shortcut icon" href="../Images/cheif-logo.jpg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/foodpapa-pro.css">
+  <style>
+    body{background:linear-gradient(180deg,#fffaf5,#f6efe8)!important}.admin-shell{min-height:100vh}.sidebar{min-height:100vh;background:linear-gradient(180deg,#171717,#241d18);color:#fff;position:sticky;top:0}.sidebar a{display:block;color:#bdb8b3;text-decoration:none;padding:12px 14px;border-radius:14px;margin:5px 0}.sidebar a:hover,.sidebar a.active{background:rgba(255,255,255,.09);color:#fff}.stat{padding:22px}.dish-img{height:190px;width:100%;object-fit:cover}.status-pill{font-size:11px}.toolbar{border-radius:22px;padding:18px;background:rgba(255,255,255,.76);backdrop-filter:blur(14px);box-shadow:0 18px 45px rgba(35,20,10,.08)}
+  </style>
+</head>
+<body>
+<div class="container-fluid admin-shell"><div class="row g-0">
+  <aside class="col-lg-2 sidebar p-3">
+    <h3 class="border-0 text-white mb-4"><i class="fa-solid fa-utensils text-warning me-2"></i>FoodPapa</h3>
+    <small class="text-secondary">ADMIN PORTAL</small>
+    <a href="AdminHome-v2.html"><i class="fa-solid fa-chart-line me-2"></i>Overview</a>
+    <a class="active" href="AdminDashboard-v2.html"><i class="fa-solid fa-bowl-food me-2"></i>Dishes</a>
+    <a href="AdminOrder-v2.html"><i class="fa-solid fa-receipt me-2"></i>Orders</a>
+    <button id="logout" class="btn btn-outline-light w-100 mt-4">Logout</button>
+  </aside>
+  <main class="col-lg-10 p-3 p-lg-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"><div><span class="text-orange fw-bold">FOODPAPA ADMIN</span><h1 class="mb-0">Dish manager</h1></div><button class="btn btn-orange px-4" id="addBtn"><i class="fa-solid fa-plus me-2"></i>Add dish</button></div>
+    <div class="toolbar d-flex flex-wrap gap-3 align-items-center mb-4"><input id="search" class="form-control flex-grow-1" style="min-width:220px" placeholder="Search dishes…"><select id="categoryFilter" class="form-select" style="max-width:220px"><option value="">All categories</option><option>Appetizer</option><option>Main Course</option><option>Dessert</option><option>Beverage</option></select><select id="statusFilter" class="form-select" style="max-width:180px"><option value="">All status</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+    <div id="dishes" class="row g-4"></div>
+  </main>
+</div></div>
+<div class="modal fade" id="dishModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><form id="dishForm"><div class="modal-header"><h5 class="modal-title" id="modalTitle">Add dish</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="dishId"><div class="row g-3"><div class="col-md-8"><label class="form-label">Dish name</label><input id="name" class="form-control" required></div><div class="col-md-4"><label class="form-label">Price (PKR)</label><input id="price" class="form-control" type="number" min="0" required></div><div class="col-md-6"><label class="form-label">Category</label><select id="category" class="form-select" required><option value="">Select category</option><option>Appetizer</option><option>Main Course</option><option>Dessert</option><option>Beverage</option></select></div><div class="col-md-6"><label class="form-label">Status</label><select id="status" class="form-select"><option value="active">Active</option><option value="inactive">Inactive</option></select></div><div class="col-12"><label class="form-label">Image URL</label><input id="image" class="form-control" type="url" placeholder="https://…"></div><div class="col-12"><label class="form-label">Description</label><textarea id="description" class="form-control" rows="4" placeholder="Short description"></textarea></div></div></div><div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button class="btn btn-orange" type="submit">Save dish</button></div></form></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="module">
+import {supabase,requireAdmin,signOutUser} from '../js/supabase.js';
+const modal=new bootstrap.Modal('#dishModal');let all=[];let admin;
+const $=id=>document.getElementById(id);const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function load(){const {data,error}=await supabase.from('dishes').select('*').order('created_at',{ascending:false});if(error){Swal.fire('Error',error.message,'error');return}all=data||[];render()}
+function render(){const q=$('search').value.trim().toLowerCase(),cat=$('categoryFilter').value,status=$('statusFilter').value;const rows=all.filter(d=>(!q||`${d.name} ${d.description||''}`.toLowerCase().includes(q))&&(!cat||d.category===cat)&&(!status||d.status===status));$('dishes').innerHTML=rows.map(d=>`<div class="col-md-6 col-xl-4"><article class="card h-100"><img class="dish-img" src="${esc(d.image_url||'../Images/dish-1.jpg')}" onerror="this.src='../Images/dish-1.jpg'" alt="${esc(d.name)}"><div class="card-body p-4 d-flex flex-column"><div class="d-flex justify-content-between gap-2"><h5 class="card-title mb-1">${esc(d.name)}</h5><span class="badge ${d.status==='active'?'text-bg-success':'text-bg-secondary'} status-pill">${esc(d.status)}</span></div><div class="text-orange fw-bold mt-2">Rs. ${Number(d.price).toLocaleString()}</div><p class="text-secondary small mt-2 flex-grow-1">${esc(d.description||'No description')}</p><div class="d-flex gap-2"><button class="btn btn-light flex-grow-1" data-edit="${d.id}"><i class="fa-solid fa-pen me-1"></i>Edit</button><button class="btn btn-outline-danger" data-delete="${d.id}"><i class="fa-solid fa-trash"></i></button></div></div></article></div>`).join('')||'<div class="col-12"><div class="card p-5 text-center text-secondary">No dishes match your filters.</div></div>'}
+function openForm(d){$('dishId').value=d?.id||'';$('modalTitle').textContent=d?'Edit dish':'Add dish';$('name').value=d?.name||'';$('price').value=d?.price??'';$('category').value=d?.category||'';$('status').value=d?.status||'active';$('image').value=d?.image_url||'';$('description').value=d?.description||'';modal.show()}
+$('addBtn').onclick=()=>openForm();$('search').oninput=render;$('categoryFilter').onchange=render;$('statusFilter').onchange=render;$('logout').onclick=()=>signOutUser('AdminSignin.html');
+$('dishes').onclick=async e=>{const edit=e.target.closest('[data-edit]'),del=e.target.closest('[data-delete]');if(edit)openForm(all.find(d=>d.id===edit.dataset.edit));if(del){const id=del.dataset.delete;if(!(await Swal.fire({title:'Delete dish?',text:'This action cannot be undone.',icon:'warning',showCancelButton:true,confirmButtonText:'Delete',confirmButtonColor:'#dc3545'})).isConfirmed)return;const {error}=await supabase.from('dishes').delete().eq('id',id);if(error)Swal.fire('Error',error.message,'error');else{Swal.fire({icon:'success',title:'Deleted',timer:900,showConfirmButton:false});await load()}}};
+$('dishForm').onsubmit=async e=>{e.preventDefault();const payload={name:$('name').value.trim(),price:Number($('price').value),category:$('category').value,description:$('description').value.trim(),image_url:$('image').value.trim()||null,status:$('status').value};const id=$('dishId').value;let result=id?await supabase.from('dishes').update(payload).eq('id',id):await supabase.from('dishes').insert({...payload,owner_id:admin.user.id});if(result.error){Swal.fire('Error',result.error.message,'error');return}modal.hide();Swal.fire({icon:'success',title:id?'Dish updated':'Dish added',timer:1000,showConfirmButton:false});await load()};
+admin=await requireAdmin();if(admin)load();
+</script><script src="../js/foodpapa-motion.js"></script>
+</body></html>
